@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
-import { ActivityIndicator, IconButton, Searchbar, Text } from "react-native-paper";
+import { ActivityIndicator, Button, IconButton, Searchbar, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getPosts, searchPosts } from "../../src/actions/posts";
 import PostCard from "../../src/components/PostCard";
@@ -36,21 +36,32 @@ export default function FeedScreen() {
         <Text variant="headlineSmall" style={styles.headerTitle}>
           Feed de Posts
         </Text>
-        {isAuthenticated && (
+        
+        {isAuthenticated ? (
           <IconButton
             icon="logout"
             size={24}
             onPress={logout}
-            iconColor="#5B7C99"
+            iconColor="#d32f2f"
           />
+        ) : (
+          <Button 
+            mode="text" 
+            textColor="#5B7C99"
+            onPress={() => router.push("/(auth)/login")}
+          >
+            Entrar
+          </Button>
         )}
       </View>
+
       <Searchbar
         placeholder="Buscar posts..."
         onChangeText={setQuery}
         value={query}
         style={styles.search}
       />
+      
       {loading ? (
         <ActivityIndicator animating={true} style={{ marginTop: 20 }} />
       ) : (

@@ -35,3 +35,5 @@ export const endpoints = {
   user: "/user",
   teacher: "/teacher",
 };
+
+

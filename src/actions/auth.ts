@@ -24,13 +24,6 @@ export async function signIn(data: { email: string; senha: string }) {
   console.log("SignIn - Token recebido:", res.data.token);
   console.log("SignIn - User recebido:", res.data.user);
 
-  if (res.data.token) {
-    localStorage.setItem("token", res.data.token);
-    console.log("Token salvo no localStorage");
-  } else {
-    console.error("Token não veio na resposta!");
-  }
-
   return res.data;
 }
 
@@ -49,8 +42,6 @@ export async function validateToken() {
     return res.data;
   } catch (error) {
     console.error("Token inválido:", error);
-    localStorage.removeItem("token");
-    localStorage.removeItem("userData");
     throw error;
   }
 }
