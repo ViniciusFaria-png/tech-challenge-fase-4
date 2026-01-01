@@ -12,6 +12,7 @@ export default function UserFormScreen() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [materia, setMateria] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(isEditing);
   const [error, setError] = useState("");
@@ -26,8 +27,13 @@ export default function UserFormScreen() {
     try {
       setLoadingData(true);
       const userData = await getUserById(id!, role!);
-      setName(userData.nome || userData.name || "");
-      setEmail(userData.email || "");
+      
+      if (role === 'professor') {
+        setName(userData.nome || "");
+        setMateria(userData.materia || "");
+      } else {
+        setEmail(userData.email || "");
+      }
     } catch (e) {
       Alert.alert("Erro", "Não foi possível carregar os dados do usuário.");
       router.back();
@@ -37,19 +43,37 @@ export default function UserFormScreen() {
   };
 
   const handleSave = async () => {
-    if (!name || !email || (!isEditing && !senha)) {
-      setError("Preencha todos os campos obrigatórios.");
-      return;
+    if (role === 'professor') {
+      if (!name || !materia) {
+        setError("Preencha todos os campos obrigatórios.");
+        return;
+      }
+    } else {
+      if (isEditing) {
+        if (!email || !senha) {
+          setError("Preencha todos os campos obrigatórios.");
+          return;
+        }
+      } else {
+        if (!name || !email || !senha) {
+          setError("Preencha todos os campos obrigatórios.");
+          return;
+        }
+      }
     }
 
     setLoading(true);
     setError("");
     try {
       if (isEditing) {
-        await updateUser(id, { name, email, role, ...(senha ? { senha } : {}) });
+        if (role === 'professor') {
+          await updateUser(id, { name, materia, role });
+        } else {
+          await updateUser(id, { email, senha, role });
+        }
         Alert.alert("Sucesso", "Usuário atualizado!");
       } else {
-        await createUser({ name, email, senha, role });
+        await createUser({ name, email, senha, role, materia });
         Alert.alert("Sucesso", "Usuário criado!");
       }
       router.back();
@@ -80,31 +104,79 @@ export default function UserFormScreen() {
       </Appbar.Header>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <TextInput
-          label="Nome Completo"
-          value={name}
-          onChangeText={setName}
-          mode="outlined"
-          style={styles.input}
-        />
-        <TextInput
-          label="E-mail"
-          value={email}
-          onChangeText={setEmail}
-          mode="outlined"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          style={styles.input}
-          disabled={isEditing}
-        />
-        <TextInput
-          label={isEditing ? "Nova Senha (opcional)" : "Senha"}
-          value={senha}
-          onChangeText={setSenha}
-          mode="outlined"
-          secureTextEntry
-          style={styles.input}
-        />
+        {role === 'professor' && isEditing ? (
+          <>
+            <TextInput
+              label="Nome Completo"
+              value={name}
+              onChangeText={setName}
+              mode="outlined"
+              style={styles.input}
+            />
+            <TextInput
+              label="Matéria"
+              value={materia}
+              onChangeText={setMateria}
+              mode="outlined"
+              style={styles.input}
+            />
+          </>
+        ) : role === 'student' && isEditing ? (
+          <>
+            <TextInput
+              label="E-mail"
+              value={email}
+              mode="outlined"
+              keyboardType="email-address"
+              style={styles.input}
+              disabled
+            />
+            <TextInput
+              label="Nova Senha"
+              value={senha}
+              onChangeText={setSenha}
+              mode="outlined"
+              secureTextEntry
+              style={styles.input}
+            />
+          </>
+        ) : (
+          <>
+            <TextInput
+              label="Nome Completo"
+              value={name}
+              onChangeText={setName}
+              mode="outlined"
+              style={styles.input}
+            />
+            <TextInput
+              label="E-mail"
+              value={email}
+              onChangeText={setEmail}
+              mode="outlined"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              style={styles.input}
+            />
+            <TextInput
+              label="Senha"
+              value={senha}
+              onChangeText={setSenha}
+              mode="outlined"
+              secureTextEntry
+              style={styles.input}
+            />
+            {role === 'professor' && (
+              <TextInput
+                label="Matéria"
+                value={materia}
+                onChangeText={setMateria}
+                mode="outlined"
+                style={styles.input}
+              />
+            )}
+          </>
+        )}
 
         {!!error && <HelperText type="error" visible>{error}</HelperText>}
 
