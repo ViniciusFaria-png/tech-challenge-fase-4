@@ -1,7 +1,7 @@
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { ActivityIndicator, IconButton, Text } from "react-native-paper";
+import { ActivityIndicator, Appbar, IconButton, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getPost } from "../../src/actions/posts";
 import { IPost } from "../../src/types";
@@ -35,7 +35,7 @@ export default function PostDetail() {
           <IconButton
             icon="arrow-left"
             size={24}
-            onPress={() => router.back()}
+            onPress={() => router.push('/(tabs)')}
             style={styles.backButton}
           />
         </View>
@@ -44,20 +44,12 @@ export default function PostDetail() {
   }
 
   return (
-    <View style={styles.container}>
-      <Stack.Screen
-        options={{
-          title: "Detalhes do Post",
-          headerShown: true,
-          headerLeft: () => (
-            <IconButton
-              icon="arrow-left"
-              size={24}
-              onPress={() => router.back()}
-            />
-          ),
-        }}
-      />
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <Stack.Screen options={{ headerShown: false }} />
+      <Appbar.Header>
+        <Appbar.BackAction onPress={() => router.push('/(tabs)')} />
+        <Appbar.Content title="Detalhes do Post" />
+      </Appbar.Header>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.contentContainer}
@@ -79,7 +71,7 @@ export default function PostDetail() {
           </Text>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

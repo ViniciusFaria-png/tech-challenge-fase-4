@@ -70,7 +70,7 @@ export default function PostCreateEditScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <Appbar.Header>
-        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.BackAction onPress={() => router.push('/(tabs)')} />
         <Appbar.Content title={isEditing ? "Editar Post" : "Novo Post"} />
       </Appbar.Header>
 
