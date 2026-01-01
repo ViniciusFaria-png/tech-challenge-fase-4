@@ -1,9 +1,9 @@
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { Alert, FlatList, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Button, IconButton, Searchbar, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getPosts, searchPosts } from "../../src/actions/posts";
+import { deletePost, getPosts, getPostsByProfessor, searchPosts } from "../../src/actions/posts";
 import PostCard from "../../src/components/PostCard";
 import { useAuth } from "../../src/contexts/AuthContext";
 import { IPost } from "../../src/types";
@@ -18,13 +18,38 @@ export default function FeedScreen() {
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     try {
-      let data = query.length > 2 ? await searchPosts(query) : await getPosts();
-      if (filter === 'my-posts' && user?.professorId) {
-        data = data.filter((post: any) => post.professor_id === user.professorId);
+      let data;
+      
+      if (filter === 'my-posts' && user?.isProfessor) {
+        const professorId = user?.professorId || Number(user?.id);
+        
+        if (!professorId) {
+          data = query.length > 2 ? await searchPosts(query) : await getPosts();
+        } else {
+          if (query.length > 2) {
+            data = await getPostsByProfessor(professorId);
+            data = data.filter((post: IPost) => String(post.professor_id) === String(professorId));
+            data = data.filter((post: IPost) => 
+              post.titulo.toLowerCase().includes(query.toLowerCase()) ||
+              post.conteudo.toLowerCase().includes(query.toLowerCase())
+            );
+          } else {
+            data = await getPostsByProfessor(professorId);
+            data = data.filter((post: IPost) => String(post.professor_id) === String(professorId));
+          }
+        }
+      } else {
+        data = query.length > 2 ? await searchPosts(query) : await getPosts();
       }
-      setPosts(data);
+
+      const sortedPosts = data.sort((a: IPost, b: IPost) => {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+
+      setPosts(sortedPosts);
     } catch (e) {
       console.error(e);
+      Alert.alert("Erro", "Não foi possível carregar os posts.");
     } finally {
       setLoading(false);
     }
@@ -33,6 +58,29 @@ export default function FeedScreen() {
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
+
+  const handleDeletePost = async (post: IPost) => {
+    Alert.alert(
+      "Excluir Post",
+      `Tem certeza que deseja excluir o post "${post.titulo}"?`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deletePost(post.id);
+              setPosts((prevPosts) => prevPosts.filter((p) => p.id !== post.id));
+            } catch (err) {
+              console.error("Erro ao excluir post:", err);
+              Alert.alert("Erro", "Erro ao excluir o post. Tente novamente.");
+            }
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -79,7 +127,7 @@ export default function FeedScreen() {
               currentProfessorId={user?.professorId}
               onPress={() => router.push(`/post/${item.id}`)}
               onEdit={() => router.push({ pathname: "/post/create-edit", params: { id: item.id } })}
-              onDelete={() => {}}
+              onDelete={() => handleDeletePost(item)}
             />
           )}
           ListEmptyComponent={

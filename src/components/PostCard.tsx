@@ -15,6 +15,7 @@ interface PostCardProps {
 export default function PostCard({ post, isProfessor, onPress, onEdit, onDelete, currentProfessorId }: PostCardProps) {
   const theme = useTheme();
   
+  // Lógica idêntica à Web para verificar propriedade
   const isOwner = isProfessor && currentProfessorId && String(post.professor_id) == String(currentProfessorId);
 
   return (
@@ -28,6 +29,7 @@ export default function PostCard({ post, isProfessor, onPress, onEdit, onDelete,
           Data: {new Date(post.created_at).toLocaleDateString()}
         </Text>
       </Card.Content>
+      {/* Renderiza ações apenas se for o dono */}
       {isOwner && (
         <Card.Actions>
           <IconButton icon="pencil" onPress={onEdit} />

@@ -42,6 +42,7 @@ export default function AdminScreen() {
             </Button>
              <Button 
               mode="outlined" 
+              icon="file-document-multiple"
               onPress={() => router.push({ pathname: "/(tabs)", params: { filter: 'my-posts' } })}
               style={styles.secondaryButton}
             >

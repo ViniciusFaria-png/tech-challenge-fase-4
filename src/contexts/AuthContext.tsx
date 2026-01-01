@@ -70,12 +70,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (response.token) {
             await saveToken(response.token);
             
+            const isProfessor = Boolean(response.user?.isProfessor);
+            const professorId = isProfessor ? Number(response.user?.id) : response.user?.professorId;
+            
             let userData: User = {
                 id: String(response.user?.id || "0"),
                 email: response.user?.email || email,
                 professorName: response.user?.professorName,
-                isProfessor: Boolean(response.user?.isProfessor),
-                professorId: response.user?.professorId
+                isProfessor: isProfessor,
+                professorId: professorId
             };
 
             await AsyncStorage.setItem('userData', JSON.stringify(userData));

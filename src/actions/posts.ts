@@ -39,3 +39,10 @@ export async function searchPosts(query: string) {
   });
   return res.data;
 }
+
+export async function getPostsByProfessor(professorId: number) {
+  const res = await axiosInstance.get(endpoints.posts, {
+    params: { professor_id: professorId },
+  });
+  return res.data.posts;
+}
