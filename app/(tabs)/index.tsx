@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Button, IconButton, Searchbar, Text } from "react-native-paper";
@@ -9,6 +9,7 @@ import { useAuth } from "../../src/contexts/AuthContext";
 import { IPost } from "../../src/types";
 
 export default function FeedScreen() {
+  const { filter } = useLocalSearchParams();
   const [posts, setPosts] = useState<IPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
@@ -17,14 +18,17 @@ export default function FeedScreen() {
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     try {
-      const data = query.length > 2 ? await searchPosts(query) : await getPosts();
+      let data = query.length > 2 ? await searchPosts(query) : await getPosts();
+      if (filter === 'my-posts' && user?.professorId) {
+        data = data.filter((post: any) => post.professor_id === user.professorId);
+      }
       setPosts(data);
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
-  }, [query]);
+  }, [query, filter, user]);
 
   useEffect(() => {
     fetchPosts();
@@ -34,7 +38,7 @@ export default function FeedScreen() {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <Text variant="headlineSmall" style={styles.headerTitle}>
-          Feed de Posts
+          {filter === 'my-posts' ? 'Meus Posts' : 'Feed de Posts'}
         </Text>
         
         {isAuthenticated ? (

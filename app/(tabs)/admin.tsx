@@ -29,7 +29,6 @@ export default function AdminScreen() {
           <Avatar.Icon size={48} icon="account-tie" style={{ backgroundColor: '#5B7C99' }} />
         </View>
 
-        {/* Gerenciamento de Posts */}
         <Card style={styles.card}>
           <Card.Title title="Conteúdo" subtitle="Gerencie as publicações" left={(props) => <Avatar.Icon {...props} icon="file-document" style={{backgroundColor: '#C17767'}} />} />
           <Card.Content>
@@ -43,7 +42,7 @@ export default function AdminScreen() {
             </Button>
              <Button 
               mode="outlined" 
-              onPress={() => router.push("/(tabs)")}
+              onPress={() => router.push({ pathname: "/(tabs)", params: { filter: 'my-posts' } })}
               style={styles.secondaryButton}
             >
               Ver Meus Posts

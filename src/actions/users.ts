@@ -9,7 +9,7 @@ export interface UserPayload {
 }
 
 export async function getUsers(role: 'professor' | 'student') {
-  const route = role === 'professor' ? '/teachers' : '/students'; 
+  const route = role === 'professor' ? '/teacher' : '/user'; 
   try {
     const res = await axiosInstance.get(route);
     return res.data;
@@ -24,6 +24,8 @@ export async function createUser(data: UserPayload) {
   const payload = {
     email: data.email,
     senha: data.senha,
+    nome: data.name,
+    materia: 'Geral',
     [data.role === 'professor' ? 'professorName' : 'studentName']: data.name
   };
   
