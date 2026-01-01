@@ -1,4 +1,4 @@
-import axiosInstance, { endpoints } from "../lib/axios";
+import axiosInstance from "../lib/axios";
 
 export interface UserPayload {
   id?: string;
@@ -11,7 +11,7 @@ export interface UserPayload {
 
 export async function getUsers(role: 'professor' | 'student') {
   if (role === 'professor') {
-    const res = await axiosInstance.get('/teacher');
+    const res = await axiosInstance.get('/teacher'); 
     const data = res.data;
     return data.professors || data.teachers || data.data || data || [];
   }
@@ -21,12 +21,10 @@ export async function getUsers(role: 'professor' | 'student') {
     axiosInstance.get('/teacher')
   ]);
   
-  const allUsers = usersRes.data.users || [];
+  const allUsers = usersRes.data.users || usersRes.data || [];
   const teachers = teachersRes.data.professors || teachersRes.data.teachers || [];
   
-  const professorUserIds = new Set(
-    teachers.map((t: any) => t.user_id)
-  );
+  const professorUserIds = new Set(teachers.map((t: any) => t.user_id));
   
   return allUsers.filter((u: any) => !professorUserIds.has(u.id));
 }
@@ -37,36 +35,42 @@ export async function getUserById(id: string, role: 'professor' | 'student') {
     const data = res.data;
     return data.professor || data.data || data;
   } else {
-    const res = await axiosInstance.get(`${endpoints.user}/${id}`);
+    const res = await axiosInstance.get(`/user/${id}`);
     const data = res.data;
     return data.user || data.data || data;
   }
 }
 
 export async function createUser(data: UserPayload) {
-  const endpoint = data.role === 'professor' ? '/auth/signup-professor' : '/auth/signup-student';
-  const payload = {
+  const endpoint = '/user'; 
+  
+  const payload: any = {
     email: data.email,
     senha: data.senha,
-    nome: data.name,
-    materia: data.materia || 'Geral',
-    [data.role === 'professor' ? 'professorName' : 'studentName']: data.name
   };
+
+  if (data.role === 'professor') {
+    payload.professorName = data.name; 
+    payload.materia = data.materia || 'Geral';
+  } else {
+    payload.name = data.name; 
+  }
   
+  console.log("Enviando payload para:", endpoint, payload); 
   const res = await axiosInstance.post(endpoint, payload);
   return res.data;
 }
 
 export async function updateUser(id: string, data: Partial<UserPayload>) {
-  const endpoint = data.role === 'professor' ? `/teacher/${id}` : `${endpoints.user}/${id}`;
+  const endpoint = data.role === 'professor' ? `/teacher/${id}` : `/user/${id}`;
   const payload: any = {};
 
   if (data.role === 'professor') {
-    payload.nome = data.name;
-    payload.materia = data.materia;
+    if (data.name) payload.nome = data.name;
+    if (data.materia) payload.materia = data.materia;
   } else {
-    payload.email = data.email;
-    payload.senha = data.senha;
+    if (data.email) payload.email = data.email;
+    if (data.senha) payload.senha = data.senha;
   }
 
   const res = await axiosInstance.put(endpoint, payload);
@@ -74,7 +78,7 @@ export async function updateUser(id: string, data: Partial<UserPayload>) {
 }
 
 export async function deleteUser(id: string, role?: 'professor' | 'student') {
-  const endpoint = role === 'professor' ? `/teacher/${id}` : `${endpoints.user}/${id}`;
+  const endpoint = role === 'professor' ? `/teacher/${id}` : `/user/${id}`;
   const res = await axiosInstance.delete(endpoint);
   return res.data;
 }
