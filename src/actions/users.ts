@@ -9,13 +9,34 @@ export interface UserPayload {
 }
 
 export async function getUsers(role: 'professor' | 'student') {
-  const route = role === 'professor' ? '/teacher' : '/user'; 
-  try {
-    const res = await axiosInstance.get(route);
+  if (role === 'professor') {
+    const res = await axiosInstance.get('/teacher');
+    const data = res.data;
+    return data.professors || data.teachers || data.data || data || [];
+  }
+  
+  const [usersRes, teachersRes] = await Promise.all([
+    axiosInstance.get('/user'),
+    axiosInstance.get('/teacher')
+  ]);
+  
+  const allUsers = usersRes.data.users || [];
+  const teachers = teachersRes.data.professors || teachersRes.data.teachers || [];
+  
+  const professorUserIds = new Set(
+    teachers.map((t: any) => t.user_id)
+  );
+  
+  return allUsers.filter((u: any) => !professorUserIds.has(u.id));
+}
+
+export async function getUserById(id: string, role: 'professor' | 'student') {
+  if (role === 'professor') {
+    const res = await axiosInstance.get(`/teacher/${id}`);
     return res.data;
-  } catch (error) {
-    console.error("Erro ao buscar usuários", error);
-    throw error;
+  } else {
+    const res = await axiosInstance.get(`${endpoints.user}/${id}`);
+    return res.data;
   }
 }
 
@@ -34,11 +55,25 @@ export async function createUser(data: UserPayload) {
 }
 
 export async function updateUser(id: string, data: Partial<UserPayload>) {
-  const res = await axiosInstance.put(`${endpoints.user}/${id}`, data);
+  const endpoint = data.role === 'professor' ? `/teacher/${id}` : `${endpoints.user}/${id}`;
+  const payload: any = {
+    email: data.email,
+    ...(data.senha ? { senha: data.senha } : {})
+  };
+
+  if (data.role === 'professor') {
+    payload.nome = data.name;
+    payload.materia = 'Geral';
+  } else {
+    payload.nome = data.name;
+  }
+
+  const res = await axiosInstance.put(endpoint, payload);
   return res.data;
 }
 
-export async function deleteUser(id: string) {
-  const res = await axiosInstance.delete(`${endpoints.user}/${id}`);
+export async function deleteUser(id: string, role?: 'professor' | 'student') {
+  const endpoint = role === 'professor' ? `/teacher/${id}` : `${endpoints.user}/${id}`;
+  const res = await axiosInstance.delete(endpoint);
   return res.data;
 }

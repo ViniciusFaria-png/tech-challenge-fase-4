@@ -1,9 +1,9 @@
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Alert, ScrollView, StyleSheet } from "react-native";
-import { Appbar, Button, HelperText, TextInput } from "react-native-paper";
+import { ActivityIndicator, Appbar, Button, HelperText, TextInput } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { createUser, updateUser } from "../../src/actions/users";
+import { createUser, getUserById, updateUser } from "../../src/actions/users";
 
 export default function UserFormScreen() {
   const { id, role } = useLocalSearchParams<{ id?: string, role: 'professor' | 'student' }>();
@@ -13,7 +13,28 @@ export default function UserFormScreen() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(isEditing);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (isEditing && id && role) {
+      loadUserData();
+    }
+  }, [id, role]);
+
+  const loadUserData = async () => {
+    try {
+      setLoadingData(true);
+      const userData = await getUserById(id!, role!);
+      setName(userData.nome || userData.name || "");
+      setEmail(userData.email || "");
+    } catch (e) {
+      Alert.alert("Erro", "Não foi possível carregar os dados do usuário.");
+      router.back();
+    } finally {
+      setLoadingData(false);
+    }
+  };
 
   const handleSave = async () => {
     if (!name || !email || (!isEditing && !senha)) {
@@ -38,6 +59,18 @@ export default function UserFormScreen() {
       setLoading(false);
     }
   };
+
+  if (loadingData) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <Appbar.Header>
+          <Appbar.BackAction onPress={() => router.back()} />
+          <Appbar.Content title="Carregando..." />
+        </Appbar.Header>
+        <ActivityIndicator size="large" style={{ marginTop: 50 }} />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>

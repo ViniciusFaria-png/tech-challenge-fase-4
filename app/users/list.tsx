@@ -37,7 +37,7 @@ export default function UserListScreen() {
         style: "destructive", 
         onPress: async () => {
           try {
-            await deleteUser(id);
+            await deleteUser(id, role);
             setUsers(prev => prev.filter(u => u.id !== id));
           } catch (e) {
             Alert.alert("Erro", "Falha ao excluir usuário.");
