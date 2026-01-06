@@ -13,6 +13,7 @@ export default function UserFormScreen() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [materia, setMateria] = useState("");
+  const [userId, setUserId] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(isEditing);
   const [error, setError] = useState("");
@@ -31,6 +32,8 @@ export default function UserFormScreen() {
       if (role === 'professor') {
         setName(userData.nome || "");
         setMateria(userData.materia || "");
+        setEmail(userData.email || "");
+        setUserId(userData.userId || "");
       } else {
         setEmail(userData.email || "");
       }
@@ -44,21 +47,21 @@ export default function UserFormScreen() {
 
   const handleSave = async () => {
     if (role === 'professor') {
-      if (!name || !materia) {
-        setError("Preencha todos os campos obrigatórios.");
-        return;
-      }
-    } else {
       if (isEditing) {
-        if (!email || !senha) {
+        if (!name || !materia) {
           setError("Preencha todos os campos obrigatórios.");
           return;
         }
       } else {
-        if (!name || !email || !senha) {
+        if (!name || !materia || !email || !senha) {
           setError("Preencha todos os campos obrigatórios.");
           return;
         }
+      }
+    } else {
+      if (!email || !senha) {
+        setError("Preencha todos os campos obrigatórios.");
+        return;
       }
     }
 
@@ -67,7 +70,7 @@ export default function UserFormScreen() {
     try {
       if (isEditing) {
         if (role === 'professor') {
-          await updateUser(id, { name, materia, role });
+          await updateUser(id, { name, materia, email, senha, userId, role });
         } else {
           await updateUser(id, { email, senha, role });
         }
@@ -120,16 +123,35 @@ export default function UserFormScreen() {
               mode="outlined"
               style={styles.input}
             />
+            <TextInput
+              label="E-mail"
+              value={email}
+              onChangeText={setEmail}
+              mode="outlined"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              style={styles.input}
+            />
+            <TextInput
+              label="Nova Senha (opcional)"
+              value={senha}
+              onChangeText={setSenha}
+              mode="outlined"
+              secureTextEntry
+              style={styles.input}
+              placeholder="Deixe em branco para manter a atual"
+            />
           </>
         ) : role === 'student' && isEditing ? (
           <>
             <TextInput
               label="E-mail"
               value={email}
+              onChangeText={setEmail}
               mode="outlined"
               keyboardType="email-address"
+              autoCapitalize="none"
               style={styles.input}
-              disabled
             />
             <TextInput
               label="Nova Senha"
@@ -140,7 +162,7 @@ export default function UserFormScreen() {
               style={styles.input}
             />
           </>
-        ) : (
+        ) : role === 'professor' ? (
           <>
             <TextInput
               label="Nome Completo"
@@ -166,15 +188,33 @@ export default function UserFormScreen() {
               secureTextEntry
               style={styles.input}
             />
-            {role === 'professor' && (
-              <TextInput
-                label="Matéria"
-                value={materia}
-                onChangeText={setMateria}
-                mode="outlined"
-                style={styles.input}
-              />
-            )}
+            <TextInput
+              label="Matéria"
+              value={materia}
+              onChangeText={setMateria}
+              mode="outlined"
+              style={styles.input}
+            />
+          </>
+        ) : (
+          <>
+            <TextInput
+              label="E-mail"
+              value={email}
+              onChangeText={setEmail}
+              mode="outlined"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              style={styles.input}
+            />
+            <TextInput
+              label="Senha"
+              value={senha}
+              onChangeText={setSenha}
+              mode="outlined"
+              secureTextEntry
+              style={styles.input}
+            />
           </>
         )}
 

@@ -66,8 +66,8 @@ export default function UserListScreen() {
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item }) => (
             <List.Item
-              title={item.name || item.nome || item.professorName || "Sem Nome"}
-              description={item.email}
+              title={role === 'professor' ? (item.nome || item.name || item.email) : item.email}
+              description={role === 'professor' ? (item.materia || 'Sem matéria') : ''}
               left={props => <List.Icon {...props} icon="account" />}
               right={props => (
                 <View style={{ flexDirection: 'row' }}>
