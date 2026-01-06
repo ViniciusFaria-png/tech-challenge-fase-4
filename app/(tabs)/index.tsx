@@ -85,9 +85,22 @@ export default function FeedScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
-        <Text variant="headlineSmall" style={styles.headerTitle}>
-          {filter === 'my-posts' ? 'Meus Posts' : 'Feed de Posts'}
-        </Text>
+        <View style={styles.headerLeft}>
+          <Text variant="headlineSmall" style={styles.headerTitle}>
+            {filter === 'my-posts' ? 'Meus Posts' : 'Feed de Posts'}
+          </Text>
+          {filter === 'my-posts' && (
+            <Button
+              mode="text"
+              icon="arrow-left"
+              onPress={() => router.push("/(tabs)")}
+              compact
+              textColor="#5B7C99"
+            >
+              Ver Todos
+            </Button>
+          )}
+        </View>
         
         {isAuthenticated ? (
           <IconButton
@@ -149,6 +162,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     backgroundColor: '#fff',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   headerTitle: {
     fontWeight: 'bold',
