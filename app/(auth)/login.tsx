@@ -58,15 +58,6 @@ export default function LoginScreen() {
             Entrar
           </Button>
 
-          <View style={styles.footer}>
-            <Text variant="bodyMedium" style={styles.footerText}>Não tem uma conta?</Text>
-            <Link href="/signup-student" asChild>
-              <Button mode="outlined" style={styles.footerButton}>Criar conta Aluno</Button>
-            </Link>
-            <Link href="/signup-professor" asChild>
-              <Button mode="outlined" style={styles.footerButton}>Criar conta Professor</Button>
-            </Link>
-          </View>
           <View style={styles.guestContainer}>
             <Link href="/(tabs)" asChild>
               <Button mode="text">Entrar como Visitante</Button>
