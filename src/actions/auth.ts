@@ -1,0 +1,47 @@
+import axiosInstance, { endpoints } from "../lib/axios";
+
+export async function signUp(data: {
+  email: string;
+  senha: string;
+  professorName?: string;
+}) {
+  console.log("SignUp - Enviando dados:", data);
+  const res = await axiosInstance.post(endpoints.user, data);
+  console.log("SignUp - Resposta:", res.data);
+  return res.data;
+}
+
+export async function signIn(data: { email: string; senha: string }) {
+  console.log("🔐 SignIn - Enviando dados:", {
+    email: data.email,
+    senha: "***",
+  });
+
+  const res = await axiosInstance.post(`${endpoints.user}/signin`, data);
+
+  console.log("SignIn - Resposta completa:", res);
+  console.log("SignIn - res.data:", res.data);
+  console.log("SignIn - Token recebido:", res.data.token);
+  console.log("SignIn - User recebido:", res.data.user);
+
+  return res.data;
+}
+
+export async function getCurrentUser() {
+  console.log("Buscando usuário atual...");
+  const res = await axiosInstance.get(`${endpoints.user}/me`);
+  console.log("getCurrentUser - Resposta:", res.data);
+  return res.data;
+}
+
+export async function validateToken() {
+  console.log("Validando token...");
+  try {
+    const res = await axiosInstance.get(`${endpoints.user}/me`);
+    console.log("Token válido - Resposta:", res.data);
+    return res.data;
+  } catch (error) {
+    console.error("Token inválido:", error);
+    throw error;
+  }
+}
