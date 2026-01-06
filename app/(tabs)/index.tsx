@@ -4,6 +4,7 @@ import { Alert, FlatList, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Button, IconButton, Searchbar, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { deletePost, getPosts, getPostsByProfessor, searchPosts } from "../../src/actions/posts";
+import { getUsers } from "../../src/actions/users";
 import PostCard from "../../src/components/PostCard";
 import { useAuth } from "../../src/contexts/AuthContext";
 import { IPost } from "../../src/types";
@@ -13,6 +14,7 @@ export default function FeedScreen() {
   const [posts, setPosts] = useState<IPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [professorsMap, setProfessorsMap] = useState<Record<string, string>>({});
   const { user, logout, isAuthenticated } = useAuth();
 
   const fetchPosts = useCallback(async () => {
@@ -54,6 +56,22 @@ export default function FeedScreen() {
       setLoading(false);
     }
   }, [query, filter, user]);
+
+  useEffect(() => {
+    const fetchProfessors = async () => {
+      try {
+        const data = await getUsers('professor');
+        const map: Record<string, string> = {};
+        data.forEach((prof: any) => {
+          map[String(prof.id)] = prof.nome || prof.name || 'Professor';
+        });
+        setProfessorsMap(map);
+      } catch (e) {
+        console.error('Erro ao carregar professores:', e);
+      }
+    };
+    fetchProfessors();
+  }, []);
 
   useEffect(() => {
     fetchPosts();
@@ -138,6 +156,7 @@ export default function FeedScreen() {
               post={item}
               isProfessor={!!user?.isProfessor}
               currentProfessorId={user?.professorId}
+              authorName={professorsMap[String(item.professor_id)] || "Professor"}
               onPress={() => router.push(`/post/${item.id}`)}
               onEdit={() => router.push({ pathname: "/post/create-edit", params: { id: item.id } })}
               onDelete={() => handleDeletePost(item)}
