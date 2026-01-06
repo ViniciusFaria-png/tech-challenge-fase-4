@@ -10,9 +10,10 @@ interface PostCardProps {
   onEdit?: () => void;
   onDelete?: () => void;
   currentProfessorId?: number;
+  authorName?: string;
 }
 
-export default function PostCard({ post, isProfessor, onPress, onEdit, onDelete, currentProfessorId }: PostCardProps) {
+export default function PostCard({ post, isProfessor, onPress, onEdit, onDelete, currentProfessorId, authorName }: PostCardProps) {
   const theme = useTheme();
   
   // Lógica idêntica à Web para verificar propriedade
@@ -22,6 +23,11 @@ export default function PostCard({ post, isProfessor, onPress, onEdit, onDelete,
     <Card style={styles.card} onPress={onPress}>
       <Card.Content>
         <Text variant="titleLarge" style={styles.title}>{post.titulo}</Text>
+        {authorName && (
+          <Text variant="labelMedium" style={{ color: theme.colors.primary, marginBottom: 8 }}>
+            Autor: {authorName}
+          </Text>
+        )}
         <Text variant="bodyMedium" numberOfLines={3} style={styles.content}>
           {post.resumo || post.conteudo}
         </Text>
