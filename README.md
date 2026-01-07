@@ -126,21 +126,6 @@ tech-challenge-fase-4/
 * Criar, editar e excluir postagens.
 * Gerenciar conteúdo da plataforma diretamente pelo celular.
 
-## 🚀 Implantação e Distribuição
-
-A aplicação utiliza o ecossistema Expo, facilitando a geração de builds.
-
-* **EAS Build:** Ferramenta utilizada para gerar os binários (.apk, .aab, .ipa).
-* **Expo Go:** Utilizado para testes rápidos durante o desenvolvimento.
-
-Para gerar uma build de produção (exemplo Android):
-
-```bash
-npm install -g eas-cli
-eas login
-eas build -p android --profile production
-```
-
 ## 🔒 Segurança
 
 * **🛡️ Secure Store:** Armazenamento criptografado do Token JWT no dispositivo do usuário.
@@ -152,6 +137,5 @@ eas build -p android --profile production
 Este projeto é parte do FIAP Tech Challenge Fase 4 - Pós Tech FullStack Development
 
 <div align="center">
-<p><strong>Desenvolvido com ❤️ para a educação</strong></p>
 <p>FIAP Tech Challenge - Fase 4 | 2025</p>
 </div>
